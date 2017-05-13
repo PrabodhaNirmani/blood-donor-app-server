@@ -4,6 +4,7 @@ var MobileUser=require('./models/mobile_user');
 var BloodDonor=require('./models/blood_donor');
 var Blood=require('./models/blood_packet');
 var District=require('./models/district');
+var Request=require('./models/emergency_request');
 
 app.get('/test',function(req,res){
 	console.log("teag");
@@ -128,8 +129,15 @@ app.get('/get-districts',function(req,res){
 
 		}
 		else{
+			// console.log(list)
 			res.json({districts:list});
 		}
 	})
 
 });
+
+app.post('/add-request',function(req,res){
+	var request=req.body.request;
+	var emg_request=new Emer
+
+})
