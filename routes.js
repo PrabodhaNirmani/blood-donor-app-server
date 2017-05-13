@@ -121,7 +121,7 @@ app.post('/search-blood',function(req,res){
 
 });
 
-router.get('/get-districts',function(req,res){
+app.get('/get-districts',function(req,res){
 	District.find({valid:true}).select('district').exec(function(err,list){
 		if(err){
 			console.log("err");
