@@ -138,6 +138,78 @@ app.get('/get-districts',function(req,res){
 
 app.post('/add-request',function(req,res){
 	var request=req.body.request;
-	var emg_request=new Emer
+	var emg_request=new Request();
+	if(request.blood.length==3){
+		emg_request.abo=request.blood[0]+request.blood[1];
+		emg_request.rh=request.blood[2];
+	}
+	else{
+		emg_request.abo=request.blood[0];
+		emg_request.rh=request.blood[1];
+	}
+	emg_request.date=new Date();
+	emg_request.description=request.description;
+	emg_request.contact_person=request.name;
+	emg_request.contact_no=request.tele_no;
+	emg_request.district=request.district;
+	emg_request.save(function(err){
+		if(err){
+			console.log(err)
+			res.json({success:false,message:"Failed to finished the operation"})
 
-})
+		}
+		else{
+			BloodDonor.find({abo:emg_request.abo,rh:emg_request.rh}).select().exec(function(error,donorList){
+				if(error){
+					console.log(error)
+					res.json({success:false,message:"Failed to finished the operation"})
+
+				}
+				else if(donorList.length>0){
+					var donors=[];
+					var validDuration=function(lastDate){
+						var newDate=new Date();
+						if(lastDate==null){
+							return true;
+						}
+						else if(newDate.getYear()-lastDate.getYear()>0){
+							return true;
+						}
+						else if(newDate.getYear()-lastDate.getYear()==0 && newDate.getMonth()-lastDate.getMonth()>4){
+							return true;
+						}
+						else if(newDate.getYear()-lastDate.getYear()==0 && newDate.getMonth()-lastDate.getMonth()==4 && newDate.getDate()-lastDate.getDate()>0){
+							return true;
+						}
+						else{
+							
+							return false;
+						}
+					}
+					for(var i=0;i<donorList.length;i++){
+						if(validDuration(donorList[i].last_donated_date)){
+							donors.push(donorList[i]);
+
+						}
+					}
+					if(donors.length>0){
+						res.json({success:true,message:"Emergency request message posted",donors:donors})
+
+					}
+					else{
+						res.json({success:true,message:"Emergency request message posted"})
+					}
+					
+				}
+				else{
+					res.json({success:true,message:"Emergency request message posted"})
+
+				}
+			});
+
+		}
+	})
+
+});
+
+
