@@ -212,4 +212,41 @@ app.post('/add-request',function(req,res){
 
 });
 
+app.get('/get-request',function(req,res){
+	Request.find({},function(err,requests){
+		if(err){
+			console.log(err);
+		}
+		else{
+			res.json({requests:requests});
+		}
+	});
+
+	// User.find({}, function(err, users) {
+ //    var userMap = {};
+
+ //    users.forEach(function(user) {
+ //      userMap[user._id] = user;
+ //    });
+
+//    res.send(userMap);  
+  // });
+
+});
+
+app.get('/get-donation-campaigns',function(req,res){
+	Request.find({},function(err,campaigns){
+		if(err){
+			console.log(err);
+		}
+		else{
+			res.json({campaigns:campaigns});
+		}
+	});
+
+
+
+});
+
+
 
