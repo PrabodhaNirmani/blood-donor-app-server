@@ -212,6 +212,71 @@ app.post('/add-request',function(req,res){
 
 });
 
+app.post('/add-donation-campaign',function(req,res){
+	var campaign=req.body.campaign;
+	var campaign=new DonationCampaign();
+	
+	
+	campaign.save(function(err){
+		if(err){
+			console.log(err)
+			res.json({success:false,message:"Failed to finished the operation"})
+
+		}
+		else{
+			// BloodDonor.find({abo:emg_request.abo,rh:emg_request.rh}).select().exec(function(error,donorList){
+			// 	if(error){
+			// 		console.log(error)
+			// 		res.json({success:false,message:"Failed to finished the operation"})
+
+			// 	}
+			// 	else if(donorList.length>0){
+			// 		var donors=[];
+			// 		var validDuration=function(lastDate){
+			// 			var newDate=new Date();
+			// 			if(lastDate==null){
+			// 				return true;
+			// 			}
+			// 			else if(newDate.getYear()-lastDate.getYear()>0){
+			// 				return true;
+			// 			}
+			// 			else if(newDate.getYear()-lastDate.getYear()==0 && newDate.getMonth()-lastDate.getMonth()>4){
+			// 				return true;
+			// 			}
+			// 			else if(newDate.getYear()-lastDate.getYear()==0 && newDate.getMonth()-lastDate.getMonth()==4 && newDate.getDate()-lastDate.getDate()>0){
+			// 				return true;
+			// 			}
+			// 			else{
+							
+			// 				return false;
+			// 			}
+			// 		}
+			// 		for(var i=0;i<donorList.length;i++){
+			// 			if(validDuration(donorList[i].last_donated_date)){
+			// 				donors.push(donorList[i]);
+
+			// 			}
+			// 		}
+			// 		if(donors.length>0){
+			// 			res.json({success:true,message:"Emergency request message posted",donors:donors})
+
+			// 		}
+			// 		else{
+			// 			res.json({success:true,message:"Emergency request message posted"})
+			// 		}
+					
+			// 	}
+			// 	else{
+			// 		res.json({success:true,message:"Emergency request message posted"})
+
+			// 	}
+			// });
+
+		}
+	})
+
+});
+
 app.get('/get-request',function(req,res){
 	Request.find({},function(err,requests){
 		if(err){
@@ -221,17 +286,6 @@ app.get('/get-request',function(req,res){
 			res.json({requests:requests});
 		}
 	});
-
-	// User.find({}, function(err, users) {
- //    var userMap = {};
-
- //    users.forEach(function(user) {
- //      userMap[user._id] = user;
- //    });
-
-//    res.send(userMap);  
-  // });
-
 });
 
 app.get('/get-donation-campaigns',function(req,res){
@@ -243,9 +297,6 @@ app.get('/get-donation-campaigns',function(req,res){
 			res.json({campaigns:campaigns});
 		}
 	});
-
-
-
 });
 
 
