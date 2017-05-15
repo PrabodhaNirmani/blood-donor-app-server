@@ -62,7 +62,7 @@ app.post('/authenticate',function(req,res){
 				res.json({success:false,message:"Counld not authenticate password",forgetPassword:true});
 			}
 			else{
-				res.json({success:true,message:"User authenticated successfully"});
+				res.json({success:true,message:"User authenticated successfully",user:user});
 			}
 		}
 	});
@@ -345,38 +345,27 @@ app.get('/get-donation-campaigns',function(req,res){
 			console.log(err);
 		}
 		else{
-			// for(var i=0;i<campaigns.length;i++){
-			// 	if(campaigns[i].longitude==null && campaigns[i].latitude==null){
-			// 		var campaign=campaigns[i];
-			// 		geocoder.geocode(campaign.address, function(err, res) {
-			// 			if(err){
-			// 				//console.log(err)
-
-			// 			}
-			// 			else{
-			// 				console.log(res.longitude+"  "+res.latitude)
-			// 				campaign.latitude=res.latitude;
-			// 		  		campaign.longitude=res.longitude;		
-
-			// 			}
-
-	  
-			// 		});
-
-			// 		campaign.save(function(err){
-			// 			if(err){
-			// 				console.log(err)	
-			// 			}
-						
-			// 		});
-
-
-			// 	}
-			// }
+			
 			res.json({campaigns:campaigns});
 		}
 	});
 });
+
+app.get('/get-user',function(req,res){
+	var email=req.body.email;
+	BloodDonor.findOne({email:email}).select().exec(function(err,user){
+		if(err){
+			res.json({success:false,message:"Operation Failed"})
+		}
+		else if(!user){
+			res.json({success:false,message:"Operation Failed, Could not find the user"})
+
+		}
+		else{
+			res.json({success:true,message:"user found",user:user})
+		}
+	})
+})
 
 
 
