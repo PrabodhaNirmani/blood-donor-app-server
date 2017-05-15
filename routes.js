@@ -1,10 +1,43 @@
 var express=require('express');
 var app=module.exports=express.Router();
+
+var NodeGeocoder = require('node-geocoder');
+
 var MobileUser=require('./models/mobile_user');
 var BloodDonor=require('./models/blood_donor');
 var Blood=require('./models/blood_packet');
 var District=require('./models/district');
 var Request=require('./models/emergency_request');
+var DonationCampaign=require('./models/donation_campaign');
+
+var locate=function(address){
+		var latlng={latitude:0,longitude:0};
+		geocoder.geocode(address, function(e, responce) {
+		if(e){
+			console.log(e)
+
+		}
+		else{
+			console.log("here")
+			latlng.latitude=responce.latitude;
+	  		latlng.longitude=responce.longitude;		
+		}
+	  
+	});	
+}
+
+
+var options = {
+  provider: 'google',
+ 
+  // Optional depending on the providers 
+  httpAdapter: 'https', // Default 
+  apiKey: 'AIzaSyBtkTpWo3VXTQLvGzz-_uRBx1vRx-RfYnI', // for Mapquest, OpenCage, Google Premier 
+  formatter: null         // 'gpx', 'string', ... 
+};
+ 
+var geocoder = NodeGeocoder(options);
+ 
 
 app.get('/test',function(req,res){
 	console.log("teag");
@@ -213,64 +246,82 @@ app.post('/add-request',function(req,res){
 });
 
 app.post('/add-donation-campaign',function(req,res){
-	var campaign=req.body.campaign;
-	var campaign=new DonationCampaign();
+	var cam=req.body.campaign;
+	// var latitude=0
+	// var longitude=0;
 	
+	
+	var campaign=new DonationCampaign();
+	campaign.address=cam.address;
+	campaign.date=cam.date;
+	campaign.charity_organization=cam.org;
+	campaign.district=cam.district;
+	campaign.description=cam.description;
+	campaign.from=cam.from;
+	campaign.to=cam.to;
+	// campaign.latitude=latitude;
+	// campaign.longitude=longitude;
+	//console.log(campaign)
+	// Using callback 
+
+
+
 	
 	campaign.save(function(err){
 		if(err){
-			console.log(err)
+			console.log(err);
 			res.json({success:false,message:"Failed to finished the operation"})
 
 		}
 		else{
-			// BloodDonor.find({abo:emg_request.abo,rh:emg_request.rh}).select().exec(function(error,donorList){
-			// 	if(error){
-			// 		console.log(error)
-			// 		res.json({success:false,message:"Failed to finished the operation"})
+			BloodDonor.find({district:campaign.district}).select().exec(function(error,donorList){
+				if(error){
+					console.log(error)
+					res.json({success:false,message:"Failed to finished the operation"})
 
-			// 	}
-			// 	else if(donorList.length>0){
-			// 		var donors=[];
-			// 		var validDuration=function(lastDate){
-			// 			var newDate=new Date();
-			// 			if(lastDate==null){
-			// 				return true;
-			// 			}
-			// 			else if(newDate.getYear()-lastDate.getYear()>0){
-			// 				return true;
-			// 			}
-			// 			else if(newDate.getYear()-lastDate.getYear()==0 && newDate.getMonth()-lastDate.getMonth()>4){
-			// 				return true;
-			// 			}
-			// 			else if(newDate.getYear()-lastDate.getYear()==0 && newDate.getMonth()-lastDate.getMonth()==4 && newDate.getDate()-lastDate.getDate()>0){
-			// 				return true;
-			// 			}
-			// 			else{
+				}
+				else if(donorList.length>0){
+					var donors=[];
+					var validDuration=function(lastDate){
+						var newDate=new Date();
+						if(lastDate==null){
+							return true;
+						}
+						else if(newDate.getYear()-lastDate.getYear()>0){
+							return true;
+						}
+						else if(newDate.getYear()-lastDate.getYear()==0 && newDate.getMonth()-lastDate.getMonth()>4){
+							return true;
+						}
+						else if(newDate.getYear()-lastDate.getYear()==0 && newDate.getMonth()-lastDate.getMonth()==4 && newDate.getDate()-lastDate.getDate()>0){
+							return true;
+						}
+						else{
 							
-			// 				return false;
-			// 			}
-			// 		}
-			// 		for(var i=0;i<donorList.length;i++){
-			// 			if(validDuration(donorList[i].last_donated_date)){
-			// 				donors.push(donorList[i]);
+							return false;
+						}
+					}
+					for(var i=0;i<donorList.length;i++){
+						if(validDuration(donorList[i].last_donated_date)){
+							donors.push(donorList[i]);
 
-			// 			}
-			// 		}
-			// 		if(donors.length>0){
-			// 			res.json({success:true,message:"Emergency request message posted",donors:donors})
+						}
+					}
+					if(donors.length>0){
+						res.json({success:true,message:"Donation Campaign message posted",donors:donors})
 
-			// 		}
-			// 		else{
-			// 			res.json({success:true,message:"Emergency request message posted"})
-			// 		}
+					}
+					else{
+						res.json({success:true,message:"Donation Campaign message posted"})
+					}
 					
-			// 	}
-			// 	else{
-			// 		res.json({success:true,message:"Emergency request message posted"})
+				}
+				else{
+					res.json({success:true,message:"Donation Campaign message posted"})
 
-			// 	}
-			// });
+				}
+
+			});
 
 		}
 	})
@@ -289,15 +340,45 @@ app.get('/get-request',function(req,res){
 });
 
 app.get('/get-donation-campaigns',function(req,res){
-	Request.find({},function(err,campaigns){
+	DonationCampaign.find({},function(err,campaigns){
 		if(err){
 			console.log(err);
 		}
 		else{
+			// for(var i=0;i<campaigns.length;i++){
+			// 	if(campaigns[i].longitude==null && campaigns[i].latitude==null){
+			// 		var campaign=campaigns[i];
+			// 		geocoder.geocode(campaign.address, function(err, res) {
+			// 			if(err){
+			// 				//console.log(err)
+
+			// 			}
+			// 			else{
+			// 				console.log(res.longitude+"  "+res.latitude)
+			// 				campaign.latitude=res.latitude;
+			// 		  		campaign.longitude=res.longitude;		
+
+			// 			}
+
+	  
+			// 		});
+
+			// 		campaign.save(function(err){
+			// 			if(err){
+			// 				console.log(err)	
+			// 			}
+						
+			// 		});
+
+
+			// 	}
+			// }
 			res.json({campaigns:campaigns});
 		}
 	});
 });
+
+
 
 
 
