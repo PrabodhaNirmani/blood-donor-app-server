@@ -109,7 +109,7 @@ app.post('/sign-up-donor',function(req,res){
 							}
 
 							else{
-								res.json({success: true,message:"You have successfully created your account"});
+								res.json({success: true,message:"You have successfully created your account",user:user});
 							}
 							
 						});	
