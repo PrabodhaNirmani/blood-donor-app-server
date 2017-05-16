@@ -351,8 +351,9 @@ app.get('/get-donation-campaigns',function(req,res){
 	});
 });
 
-app.post('/get-user',function(req,res){
+app.put('/get-user',function(req,res){
 	var email=req.body.email;
+	console.log(email)
 	BloodDonor.findOne({email:email}).select().exec(function(err,user){
 		if(err){
 			res.json({success:false,message:"Operation Failed"})
@@ -365,7 +366,29 @@ app.post('/get-user',function(req,res){
 			res.json({success:true,message:"user found",user:user})
 		}
 	})
-})
+});
+
+
+
+app.put('/get-user-update',function(req,res){
+	var email=req.body.email;
+	console.log(email)
+	BloodDonor.findOne({email:email}).select().exec(function(err,user){
+		if(err){
+			res.json({success:false,message:"Operation Failed"})
+		}
+		else if(!user){
+			res.json({success:false,message:"Operation Failed, Could not find the user"})
+
+		}
+		else{
+			res.json({success:true,message:"user found",user:user})
+		}
+	})
+});
+
+
+
 
 
 
