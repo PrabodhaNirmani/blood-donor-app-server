@@ -351,7 +351,7 @@ app.get('/get-donation-campaigns',function(req,res){
 	});
 });
 
-app.get('/get-user',function(req,res){
+app.post('/get-user',function(req,res){
 	var email=req.body.email;
 	BloodDonor.findOne({email:email}).select().exec(function(err,user){
 		if(err){
